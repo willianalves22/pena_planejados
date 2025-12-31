@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Orçamento | Pena Planejados</title>
 
+<!-- FAVICON -->
+<link rel="icon" type="image/png" href="favicon.png">
+
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 
@@ -31,7 +34,7 @@ tailwind.config = {
 @media print {
   body { background: white; }
 }
-input:disabled {
+input:disabled, textarea:disabled {
   background-color: #f3f4f6;
 }
 </style>
@@ -39,22 +42,22 @@ input:disabled {
 
 <body class="bg-gray-200 p-4 flex justify-center">
 
-<!-- CONTAINER -->
+<!-- CONTAINER A4 -->
 <div id="orcamento" class="bg-white w-[210mm] min-h-[297mm] shadow-xl">
 
 <!-- CABEÇALHO -->
 <header class="flex justify-between items-center p-6 border-b-4 border-vinho">
-  <img src="logo.png" class="w-44 object-contain">
+  <img src="logo.png" class="w-56 object-contain" alt="Pena Planejados">
 
   <div class="text-right text-sm">
-    <p>Rua do Hospital s/n Santa Amélia - Posto da Mata - BA</p>
+    <p>Rua do Hospital s/n Santa Amélia – Posto da Mata – BA</p>
     <p><strong>Responsáveis:</strong> Flávio Pena e Gilmária Pena</p>
     <p><strong>Contato:</strong> (73) 99959-4928 / (73) 99999-2026</p>
     <p id="dataAtual" class="text-vinho font-bold"></p>
   </div>
 </header>
 
-<!-- DADOS -->
+<!-- DADOS PESSOAIS -->
 <section class="p-6">
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">DADOS PESSOAIS</h2>
 
@@ -84,7 +87,7 @@ input:disabled {
 
     <tfoot>
       <tr>
-        <td colspan="2" class="border p-2 text-right font-bold bg-cinza">TOTAL</td>
+        <td colspan="2" class="border p-2 text-right font-bold bg-cinza">VALOR TOTAL</td>
         <td id="totalVista" class="border p-2 font-bold">R$ 0,00</td>
         <td id="totalPrazo" class="border p-2 font-bold">R$ 0,00</td>
         <td class="border"></td>
@@ -100,19 +103,31 @@ input:disabled {
 <!-- OBSERVAÇÕES -->
 <section class="p-6 text-sm">
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">OBSERVAÇÕES</h2>
-  <p class="mt-2">Validade do orçamento: 15 dias após o envio.</p>
-  <p>Prazo de entrega: A combinar.</p>
-  <p>Forma de pagamento: 50% ao fechar e 50% na entrega.</p>
+  <p class="mt-2">• Validade do orçamento: 15 dias após o envio.</p>
+  <p>• Prazo de entrega: A combinar.</p>
+  <p>• Forma de pagamento: 50% na assinatura do contrato e 50% na entrega.</p>
 </section>
 
-<!-- CONSIDERAÇÕES -->
+<!-- CONSIDERAÇÕES FINAIS (COMPLETAS) -->
 <section class="p-6 text-sm">
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">CONSIDERAÇÕES FINAIS</h2>
-  <p class="mt-2">
-    Obrigado por escolher a Pena Planejados. Permanecemos à disposição.
+
+  <p class="mt-4">
+    Prezado(a) Sr.(a),
   </p>
 
-  <p class="mt-4 text-center font-bold text-vinho">
+  <p class="mt-2">
+    A Pena Planejados agradece a oportunidade de apresentar este orçamento.
+    Nosso compromisso é oferecer produtos de qualidade, aliados a um atendimento
+    responsável e transparente, buscando sempre a satisfação total de nossos clientes.
+  </p>
+
+  <p class="mt-2">
+    Permanecemos à disposição para quaisquer esclarecimentos, ajustes ou informações
+    adicionais que se façam necessárias.
+  </p>
+
+  <p class="mt-6 text-center font-bold text-vinho">
     Ebenézer até aqui nos ajudou o Senhor (1 Sm 7:12)
   </p>
 </section>
@@ -132,37 +147,24 @@ input:disabled {
 
 <!-- SCRIPT -->
 <script>
-// Data atual
+// Data
 document.getElementById('dataAtual').innerText =
   new Date().toLocaleDateString('pt-BR')
 
 // Adicionar linha
 function adicionarLinha(){
   const tr = document.createElement('tr')
-
   tr.innerHTML = `
-    <td class="border p-2">
-      <input class="campo w-full border p-1">
-    </td>
-    <td class="border p-2">
-      <input type="number" value="1" min="1" class="campo w-full border p-1 qtd">
-    </td>
-    <td class="border p-2">
-      <input type="number" step="0.01" class="campo w-full border p-1 vista">
-    </td>
-    <td class="border p-2">
-      <input type="number" step="0.01" class="campo w-full border p-1 prazo">
-    </td>
+    <td class="border p-2"><input class="campo w-full border p-1"></td>
+    <td class="border p-2"><input type="number" value="1" min="1" class="campo w-full border p-1 qtd"></td>
+    <td class="border p-2"><input type="number" step="0.01" class="campo w-full border p-1 vista"></td>
+    <td class="border p-2"><input type="number" step="0.01" class="campo w-full border p-1 prazo"></td>
     <td class="border p-2 text-center">
       <button onclick="removerLinha(this)" class="text-red-600 font-bold">✖</button>
     </td>
   `
-
-  document.getElementById('itens').appendChild(tr)
-
-  tr.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', calcularTotais)
-  })
+  itens.appendChild(tr)
+  tr.querySelectorAll('input').forEach(i => i.addEventListener('input', calcularTotais))
 }
 
 // Remover linha
@@ -171,37 +173,29 @@ function removerLinha(btn){
   calcularTotais()
 }
 
-// Calcular totais
+// Totais
 function calcularTotais(){
-  let vista = 0
-  let prazo = 0
-
+  let v = 0, p = 0
   document.querySelectorAll('#itens tr').forEach(tr => {
-    const qtd = Number(tr.querySelector('.qtd').value || 0)
-    vista += qtd * Number(tr.querySelector('.vista').value || 0)
-    prazo += qtd * Number(tr.querySelector('.prazo').value || 0)
+    const qtd = +tr.querySelector('.qtd').value || 0
+    v += qtd * (+tr.querySelector('.vista').value || 0)
+    p += qtd * (+tr.querySelector('.prazo').value || 0)
   })
-
-  document.getElementById('totalVista').innerText =
-    vista.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-
-  document.getElementById('totalPrazo').innerText =
-    prazo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  totalVista.innerText = v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  totalPrazo.innerText = p.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
 }
 
-// Gerar PDF e bloquear edição
+// PDF AJUSTÁVEL + BLOQUEIO
 function gerarPDF(){
   document.querySelectorAll('.campo').forEach(c => c.disabled = true)
 
-  html2pdf()
-    .set({
-      margin: 5,
-      filename: 'orcamento-pena-planejados.pdf',
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    })
-    .from(document.getElementById('orcamento'))
-    .save()
+  html2pdf().set({
+    filename: 'orcamento-pena-planejados.pdf',
+    margin: 8,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  }).from(document.getElementById('orcamento')).save()
 }
 
 // Linha inicial
