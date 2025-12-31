@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamento | Pena Planejados</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        vinho: '#7a0f2b',
+        cinza: '#e5e5e5'
+      }
+    }
+  }
+}
+</script>
+
+<style>
+@media print {
+  body { background: white; }
+}
+input:disabled {
+  background-color: #f3f4f6;
+}
+</style>
+</head>
+
+<body class="bg-gray-200 p-4 flex justify-center">
+
+<!-- CONTAINER -->
+<div id="orcamento" class="bg-white w-[210mm] min-h-[297mm] shadow-xl">
+
+<!-- CABEÇALHO -->
+<header class="flex justify-between items-center p-6 border-b-4 border-vinho">
+  <img src="logo.png" class="w-44 object-contain">
+
+  <div class="text-right text-sm">
+    <p>Rua do Hospital s/n Santa Amélia - Posto da Mata - BA</p>
+    <p><strong>Responsáveis:</strong> Flávio Pena e Gilmária Pena</p>
+    <p><strong>Contato:</strong> (73) 99959-4928 / (73) 99999-2026</p>
+    <p id="dataAtual" class="text-vinho font-bold"></p>
+  </div>
+</header>
+
+<!-- DADOS -->
+<section class="p-6">
+  <h2 class="bg-cinza text-vinho font-bold px-4 py-2">DADOS PESSOAIS</h2>
+
+  <div class="grid grid-cols-3 gap-4 mt-4">
+    <input class="campo border p-2" placeholder="Cliente">
+    <input class="campo border p-2" placeholder="Telefone">
+    <input class="campo border p-2" placeholder="Endereço">
+  </div>
+</section>
+
+<!-- ORÇAMENTO -->
+<section class="p-6">
+  <h2 class="bg-cinza text-vinho font-bold px-4 py-2">ORÇAMENTO</h2>
+
+  <table class="w-full border mt-4 text-sm">
+    <thead class="bg-cinza text-vinho">
+      <tr>
+        <th class="border p-2">Descrição</th>
+        <th class="border p-2 w-20">Qtd</th>
+        <th class="border p-2 w-32">À Vista</th>
+        <th class="border p-2 w-32">À Prazo</th>
+        <th class="border p-2 w-14">🗑</th>
+      </tr>
+    </thead>
+
+    <tbody id="itens"></tbody>
+
+    <tfoot>
+      <tr>
+        <td colspan="2" class="border p-2 text-right font-bold bg-cinza">TOTAL</td>
+        <td id="totalVista" class="border p-2 font-bold">R$ 0,00</td>
+        <td id="totalPrazo" class="border p-2 font-bold">R$ 0,00</td>
+        <td class="border"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <button onclick="adicionarLinha()" class="mt-4 bg-vinho text-white px-4 py-2 rounded">
+    Adicionar Item
+  </button>
+</section>
+
+<!-- OBSERVAÇÕES -->
+<section class="p-6 text-sm">
+  <h2 class="bg-cinza text-vinho font-bold px-4 py-2">OBSERVAÇÕES</h2>
+  <p class="mt-2">Validade do orçamento: 15 dias após o envio.</p>
+  <p>Prazo de entrega: A combinar.</p>
+  <p>Forma de pagamento: 50% ao fechar e 50% na entrega.</p>
+</section>
+
+<!-- CONSIDERAÇÕES -->
+<section class="p-6 text-sm">
+  <h2 class="bg-cinza text-vinho font-bold px-4 py-2">CONSIDERAÇÕES FINAIS</h2>
+  <p class="mt-2">
+    Obrigado por escolher a Pena Planejados. Permanecemos à disposição.
+  </p>
+
+  <p class="mt-4 text-center font-bold text-vinho">
+    Ebenézer até aqui nos ajudou o Senhor (1 Sm 7:12)
+  </p>
+</section>
+
+<!-- BOTÕES -->
+<div class="flex justify-center gap-4 p-6">
+  <button onclick="gerarPDF()" class="bg-green-600 text-white px-4 py-2 rounded">
+    Gerar PDF
+  </button>
+
+  <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded">
+    Imprimir / WhatsApp
+  </button>
+</div>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+// Data atual
+document.getElementById('dataAtual').innerText =
+  new Date().toLocaleDateString('pt-BR')
+
+// Adicionar linha
+function adicionarLinha(){
+  const tr = document.createElement('tr')
+
+  tr.innerHTML = `
+    <td class="border p-2">
+      <input class="campo w-full border p-1">
+    </td>
+    <td class="border p-2">
+      <input type="number" value="1" min="1" class="campo w-full border p-1 qtd">
+    </td>
+    <td class="border p-2">
+      <input type="number" step="0.01" class="campo w-full border p-1 vista">
+    </td>
+    <td class="border p-2">
+      <input type="number" step="0.01" class="campo w-full border p-1 prazo">
+    </td>
+    <td class="border p-2 text-center">
+      <button onclick="removerLinha(this)" class="text-red-600 font-bold">✖</button>
+    </td>
+  `
+
+  document.getElementById('itens').appendChild(tr)
+
+  tr.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', calcularTotais)
+  })
+}
+
+// Remover linha
+function removerLinha(btn){
+  btn.closest('tr').remove()
+  calcularTotais()
+}
+
+// Calcular totais
+function calcularTotais(){
+  let vista = 0
+  let prazo = 0
+
+  document.querySelectorAll('#itens tr').forEach(tr => {
+    const qtd = Number(tr.querySelector('.qtd').value || 0)
+    vista += qtd * Number(tr.querySelector('.vista').value || 0)
+    prazo += qtd * Number(tr.querySelector('.prazo').value || 0)
+  })
+
+  document.getElementById('totalVista').innerText =
+    vista.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+  document.getElementById('totalPrazo').innerText =
+    prazo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
+// Gerar PDF e bloquear edição
+function gerarPDF(){
+  document.querySelectorAll('.campo').forEach(c => c.disabled = true)
+
+  html2pdf()
+    .set({
+      margin: 5,
+      filename: 'orcamento-pena-planejados.pdf',
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    })
+    .from(document.getElementById('orcamento'))
+    .save()
+}
+
+// Linha inicial
+adicionarLinha()
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+}
+</script>
+
+</body>
+</html>
