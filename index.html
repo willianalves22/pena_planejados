@@ -6,7 +6,6 @@
 <title>Orçamento | Pena Planejados</title>
 
 <link rel="icon" href="favicon.png">
-<link rel="manifest" href="manifest.json">
 
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -24,34 +23,23 @@ tailwind.config = {
 </script>
 
 <style>
-/* ===== CONFIGURAÇÃO DE IMPRESSÃO PROFISSIONAL ===== */
 @page {
   size: A4;
   margin: 10mm;
 }
 
 @media print {
-  body {
-    background: white;
-  }
+  body { background: white; }
+  .nao-imprimir { display: none !important; }
 
-  .nao-imprimir {
-    display: none !important;
-  }
-
-  /* Cabeçalho FORÇADO lado a lado na impressão */
   .cabecalho {
     flex-direction: row !important;
-    align-items: center !important;
     justify-content: space-between !important;
+    align-items: center !important;
   }
 
   table, tr, td, th {
     page-break-inside: avoid !important;
-  }
-
-  section {
-    break-inside: avoid;
   }
 }
 
@@ -66,13 +54,19 @@ input:disabled {
 <div id="orcamento" class="bg-white w-full md:w-[210mm] min-h-[297mm] text-sm">
 
 <!-- CABEÇALHO -->
-<header class="cabecalho flex flex-col md:flex-row justify-between items-center p-4 md:p-6 border-b-4 border-vinho gap-4">
+<header class="cabecalho flex flex-row items-center justify-between gap-2 p-3 md:p-6 border-b-4 border-vinho">
   
-  <div class="flex justify-center md:justify-start">
-    <img src="logo.png" class="w-40 md:w-56 object-contain" alt="Pena Planejados">
+  <!-- LOGO -->
+  <div class="flex-shrink-0">
+    <img 
+      src="logo.png"
+      alt="Pena Planejados"
+      class="w-24 md:w-56 object-contain mx-auto"
+    >
   </div>
 
-  <div class="text-center md:text-right text-sm">
+  <!-- DADOS -->
+  <div class="text-xs md:text-sm text-right leading-tight">
     <p>Rua do Hospital s/n</p>
     <p>Santa Amélia – Posto da Mata – BA</p>
     <p><strong>Responsáveis:</strong> Flávio Pena e Gilmária Pena</p>
@@ -82,7 +76,7 @@ input:disabled {
 
 </header>
 
-<!-- DADOS -->
+<!-- DADOS PESSOAIS -->
 <section class="p-4 md:p-6">
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">DADOS PESSOAIS</h2>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
@@ -101,7 +95,7 @@ input:disabled {
       <thead class="bg-cinza text-vinho">
         <tr>
           <th class="border p-2">Descrição</th>
-          <th class="border p-2 w-16">Qtd</th>
+          <th class="border p-2 w-14">Qtd</th>
           <th class="border p-2 w-24">À Vista</th>
           <th class="border p-2 w-24">À Prazo</th>
           <th class="border p-2 w-10 nao-imprimir">🗑</th>
@@ -147,7 +141,7 @@ input:disabled {
   </p>
 </section>
 
-<!-- BOTÃO -->
+<!-- IMPRIMIR -->
 <div class="nao-imprimir flex justify-center p-4 md:p-6">
   <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded">
     Imprimir / Salvar PDF
