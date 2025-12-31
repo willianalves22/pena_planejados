@@ -9,7 +9,6 @@
 <link rel="manifest" href="manifest.json">
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
 tailwind.config = {
@@ -25,14 +24,40 @@ tailwind.config = {
 </script>
 
 <style>
-@page { size: A4; margin: 10mm; }
-
-@media print {
-  body { background: white; }
-  .nao-imprimir { display: none !important; }
+/* ===== CONFIGURAÇÃO DE IMPRESSÃO PROFISSIONAL ===== */
+@page {
+  size: A4;
+  margin: 10mm;
 }
 
-input:disabled { background:#f3f4f6 }
+@media print {
+  body {
+    background: white;
+  }
+
+  .nao-imprimir {
+    display: none !important;
+  }
+
+  /* Cabeçalho FORÇADO lado a lado na impressão */
+  .cabecalho {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  table, tr, td, th {
+    page-break-inside: avoid !important;
+  }
+
+  section {
+    break-inside: avoid;
+  }
+}
+
+input:disabled {
+  background-color: #f3f4f6;
+}
 </style>
 </head>
 
@@ -41,22 +66,20 @@ input:disabled { background:#f3f4f6 }
 <div id="orcamento" class="bg-white w-full md:w-[210mm] min-h-[297mm] text-sm">
 
 <!-- CABEÇALHO -->
-<header class="border-b-4 border-vinho p-4 md:p-6">
-  <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-    
-    <div class="flex justify-center md:justify-start">
-      <img src="logo.png" class="w-40 md:w-56 object-contain">
-    </div>
-
-    <div class="text-center md:text-right text-sm">
-      <p>Rua do Hospital s/n</p>
-      <p>Santa Amélia – Posto da Mata – BA</p>
-      <p><strong>Responsáveis:</strong> Flávio Pena e Gilmária Pena</p>
-      <p><strong>Contato:</strong> (73) 99959-4928 / (73) 99999-2026</p>
-      <p id="dataAtual" class="text-vinho font-bold"></p>
-    </div>
-
+<header class="cabecalho flex flex-col md:flex-row justify-between items-center p-4 md:p-6 border-b-4 border-vinho gap-4">
+  
+  <div class="flex justify-center md:justify-start">
+    <img src="logo.png" class="w-40 md:w-56 object-contain" alt="Pena Planejados">
   </div>
+
+  <div class="text-center md:text-right text-sm">
+    <p>Rua do Hospital s/n</p>
+    <p>Santa Amélia – Posto da Mata – BA</p>
+    <p><strong>Responsáveis:</strong> Flávio Pena e Gilmária Pena</p>
+    <p><strong>Contato:</strong> (73) 99959-4928 / (73) 99999-2026</p>
+    <p id="dataAtual" class="text-vinho font-bold"></p>
+  </div>
+
 </header>
 
 <!-- DADOS -->
@@ -84,10 +107,12 @@ input:disabled { background:#f3f4f6 }
           <th class="border p-2 w-10 nao-imprimir">🗑</th>
         </tr>
       </thead>
+
       <tbody id="itens"></tbody>
+
       <tfoot>
         <tr>
-          <td colspan="2" class="border p-2 text-right font-bold bg-cinza">TOTAL</td>
+          <td colspan="2" class="border p-2 text-right font-bold bg-cinza">VALOR TOTAL</td>
           <td id="totalVista" class="border p-2 font-bold">R$ 0,00</td>
           <td id="totalPrazo" class="border p-2 font-bold">R$ 0,00</td>
           <td class="border nao-imprimir"></td>
@@ -101,12 +126,12 @@ input:disabled { background:#f3f4f6 }
   </button>
 </section>
 
-<!-- OBS -->
+<!-- OBSERVAÇÕES -->
 <section class="p-4 md:p-6">
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">OBSERVAÇÕES</h2>
-  <p>• Validade: 15 dias após envio.</p>
-  <p>• Entrega: A combinar.</p>
-  <p>• Pagamento: 50% na assinatura e 50% na entrega.</p>
+  <p>• Validade do orçamento: 15 dias após o envio.</p>
+  <p>• Prazo de entrega: A combinar.</p>
+  <p>• Forma de pagamento: 50% na assinatura do contrato e 50% na entrega.</p>
 </section>
 
 <!-- CONSIDERAÇÕES -->
@@ -114,73 +139,50 @@ input:disabled { background:#f3f4f6 }
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">CONSIDERAÇÕES FINAIS</h2>
   <p class="mt-2">Prezado(a) Sr.(a),</p>
   <p class="mt-2">
-    A Pena Planejados agradece a oportunidade de apresentar este orçamento e permanece à disposição.
+    A Pena Planejados agradece a oportunidade de apresentar este orçamento.
+    Permanecemos à disposição para quaisquer esclarecimentos.
   </p>
   <p class="mt-6 text-center font-bold text-vinho">
     Ebenézer até aqui nos ajudou o Senhor (1 Sm 7:12)
   </p>
 </section>
 
-<!-- BOTÕES -->
-<div class="nao-imprimir flex flex-col md:flex-row justify-center gap-3 p-4 md:p-6">
-  <button onclick="gerarPDF()" class="bg-green-600 text-white px-4 py-2 rounded">Gerar PDF</button>
-  <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded">Imprimir</button>
-  <button onclick="compartilhar()" class="bg-emerald-600 text-white px-4 py-2 rounded">Enviar WhatsApp</button>
+<!-- BOTÃO -->
+<div class="nao-imprimir flex justify-center p-4 md:p-6">
+  <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded">
+    Imprimir / Salvar PDF
+  </button>
 </div>
 
 </div>
 
 <script>
 dataAtual.innerText = new Date().toLocaleDateString('pt-BR')
-let pdfBlob = null
 
 function addLinha(){
-  const tr=document.createElement('tr')
-  tr.innerHTML=`
+  const tr = document.createElement('tr')
+  tr.innerHTML = `
     <td class="border p-2"><input class="campo w-full border p-1"></td>
     <td class="border p-2"><input type="number" value="1" class="campo w-full border p-1 qtd"></td>
     <td class="border p-2"><input type="number" step="0.01" class="campo w-full border p-1 vista"></td>
     <td class="border p-2"><input type="number" step="0.01" class="campo w-full border p-1 prazo"></td>
     <td class="border p-2 text-center nao-imprimir">
       <button onclick="this.closest('tr').remove();calc()" class="text-red-600">✖</button>
-    </td>`
+    </td>
+  `
   itens.appendChild(tr)
-  tr.querySelectorAll('input').forEach(i=>i.oninput=calc)
+  tr.querySelectorAll('input').forEach(i => i.oninput = calc)
 }
 
 function calc(){
-  let v=0,p=0
-  document.querySelectorAll('#itens tr').forEach(tr=>{
-    const q=+tr.querySelector('.qtd').value||0
-    v+=q*(+tr.querySelector('.vista').value||0)
-    p+=q*(+tr.querySelector('.prazo').value||0)
+  let v = 0, p = 0
+  document.querySelectorAll('#itens tr').forEach(tr => {
+    const q = +tr.querySelector('.qtd').value || 0
+    v += q * (+tr.querySelector('.vista').value || 0)
+    p += q * (+tr.querySelector('.prazo').value || 0)
   })
-  totalVista.innerText=v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
-  totalPrazo.innerText=p.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
-}
-
-async function gerarPDF(){
-  document.querySelectorAll('.campo').forEach(c=>c.disabled=true)
-  pdfBlob = await html2pdf().from(orcamento).outputPdf('blob')
-  html2pdf().from(orcamento).save('orcamento-pena-planejados.pdf')
-}
-
-async function compartilhar(){
-  if (!pdfBlob) {
-    alert('Gere o PDF primeiro.')
-    return
-  }
-
-  const file = new File([pdfBlob], 'orcamento-pena-planejados.pdf', { type: 'application/pdf' })
-
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    navigator.share({
-      title: 'Orçamento Pena Planejados',
-      files: [file]
-    })
-  } else {
-    alert('Seu navegador não suporta envio direto. O PDF será baixado para envio manual.')
-  }
+  totalVista.innerText = v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  totalPrazo.innerText = p.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
 }
 
 addLinha()
