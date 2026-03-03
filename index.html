@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Orçamento | Pena Planejados</title>
 
-<link rel="icon" href="favicon.png">
-
 <script src="https://cdn.tailwindcss.com"></script>
 
 <script>
@@ -23,126 +21,145 @@ tailwind.config = {
 </script>
 
 <style>
-@page {
-  size: A4;
-  margin: 10mm;
-}
-
-@media print {
-  body { background: white; }
-  .nao-imprimir { display: none !important; }
-
-  .cabecalho {
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-  }
-
-  table, tr, td, th {
-    page-break-inside: avoid !important;
-  }
-}
-
-input:disabled {
-  background-color: #f3f4f6;
-}
+@page { size: A4; margin: 10mm; }
+@media print { .nao-imprimir { display:none !important; } }
 </style>
 </head>
 
-<body class="bg-gray-200 flex justify-center p-2 md:p-4">
+<body class="bg-gray-200 flex justify-center p-4">
 
-<div id="orcamento" class="bg-white w-full md:w-[210mm] min-h-[297mm] text-sm">
+<div class="bg-white w-[210mm] min-h-[297mm] text-sm">
 
 <!-- CABEÇALHO -->
-<header class="cabecalho flex flex-row items-center justify-between gap-2 p-3 md:p-6 border-b-4 border-vinho">
-  
-  <!-- LOGO -->
-  <div class="flex-shrink-0">
-    <img 
-      src="logo.png"
-      alt="Pena Planejados"
-      class="w-32 md:w-72 object-contain"
-    >
-  </div>
+<header class="flex justify-between items-center p-6 border-b-4 border-vinho">
+  <img src="logo.png" class="w-56">
 
-  <!-- DADOS -->
-  <div class="text-xs md:text-sm text-right leading-tight">
-    <p>Rua do Hospital s/n</p>
+  <div class="text-right text-sm">
+    <p><strong>ORÇAMENTO Nº:</strong> <span id="numeroOrcamento"></span></p>
+    <p id="dataAtual" class="text-vinho font-bold"></p>
+    <p class="mt-2">Rua do Hospital s/n</p>
     <p>Santa Amélia – Posto da Mata – BA</p>
     <p><strong>Responsáveis:</strong> Flávio Pena e Gilmária Pena</p>
     <p><strong>Contato:</strong> (73) 99959-4928 / (73) 99999-2026</p>
-    <p id="dataAtual" class="text-vinho font-bold"></p>
   </div>
-
 </header>
 
-<!-- DADOS PESSOAIS -->
-<section class="p-4 md:p-6">
+<!-- DADOS -->
+<section class="p-6">
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">DADOS PESSOAIS</h2>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-    <input class="campo border p-2" placeholder="Cliente">
-    <input class="campo border p-2" placeholder="Telefone">
-    <input class="campo border p-2" placeholder="Endereço">
+  <div class="grid grid-cols-3 gap-3 mt-4">
+    <input class="border p-2" placeholder="Cliente">
+    <input class="border p-2" placeholder="Telefone">
+    <input class="border p-2" placeholder="Endereço">
   </div>
 </section>
 
 <!-- ORÇAMENTO -->
-<section class="p-4 md:p-6">
+<section class="p-6">
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">ORÇAMENTO</h2>
 
-  <div class="overflow-x-auto">
-    <table class="w-full border mt-4">
-      <thead class="bg-cinza text-vinho">
-        <tr>
-          <th class="border p-2">Descrição</th>
-          <th class="border p-2 w-14">Qtd</th>
-          <th class="border p-2 w-24">À Vista</th>
-          <th class="border p-2 w-24">À Prazo</th>
-          <th class="border p-2 w-10 nao-imprimir">🗑</th>
-        </tr>
-      </thead>
+  <table class="w-full border mt-4">
+    <thead class="bg-cinza text-vinho">
+      <tr>
+        <th class="border p-2">Descrição</th>
+        <th class="border p-2 w-16">Qtd</th>
+        <th class="border p-2 w-24">À Vista</th>
+        <th class="border p-2 w-24">À Prazo</th>
+        <th class="border p-2 w-10 nao-imprimir">🗑</th>
+      </tr>
+    </thead>
 
-      <tbody id="itens"></tbody>
+    <tbody id="linhas"></tbody>
 
-      <tfoot>
-        <tr>
-          <td colspan="2" class="border p-2 text-right font-bold bg-cinza">VALOR TOTAL</td>
-          <td id="totalVista" class="border p-2 font-bold">R$ 0,00</td>
-          <td id="totalPrazo" class="border p-2 font-bold">R$ 0,00</td>
-          <td class="border nao-imprimir"></td>
-        </tr>
-      </tfoot>
-    </table>
+    <tfoot>
+
+      <tr>
+        <td colspan="2" class="border p-2 text-right bg-cinza font-bold">SUBTOTAL</td>
+        <td id="subVista" class="border p-2">R$ 0,00</td>
+        <td id="subPrazo" class="border p-2">R$ 0,00</td>
+        <td class="border nao-imprimir"></td>
+      </tr>
+
+      <tr>
+        <td colspan="2" class="border p-2 text-right bg-yellow-100 font-bold">DESCONTO</td>
+        <td id="descVistaValor" class="border p-2">R$ 0,00</td>
+        <td id="descPrazoValor" class="border p-2">R$ 0,00</td>
+        <td class="border nao-imprimir"></td>
+      </tr>
+
+      <tr>
+        <td colspan="2" class="border p-2 text-right bg-cinza font-bold">TOTAL FINAL</td>
+        <td id="totalVista" class="border p-2 font-bold">R$ 0,00</td>
+        <td id="totalPrazo" class="border p-2 font-bold">R$ 0,00</td>
+        <td class="border nao-imprimir"></td>
+      </tr>
+
+      <tr>
+        <td colspan="4" class="border p-2 text-right bg-green-100 font-bold">
+          ENTRADA: <span id="valorEntradaExibido">R$ 0,00</span>
+        </td>
+        <td class="border nao-imprimir"></td>
+      </tr>
+
+      <tr>
+        <td colspan="4" class="border p-2 text-right bg-red-100 font-bold">
+          SALDO RESTANTE: <span id="saldoRestante">R$ 0,00</span>
+        </td>
+        <td class="border nao-imprimir"></td>
+      </tr>
+
+    </tfoot>
+  </table>
+
+  <div class="flex gap-3 mt-4 nao-imprimir">
+    <button onclick="addItem()" class="bg-vinho text-white px-4 py-2 rounded">Adicionar Item</button>
+    <button onclick="mostrarEntrada()" class="bg-green-700 text-white px-4 py-2 rounded">Adicionar Entrada</button>
+    <button onclick="mostrarDesconto()" class="bg-yellow-600 text-white px-4 py-2 rounded">Adicionar Desconto</button>
   </div>
 
-  <button onclick="addLinha()" class="nao-imprimir mt-4 bg-vinho text-white px-4 py-2 rounded w-full md:w-auto">
-    Adicionar Item
-  </button>
+  <div id="entradaBox" class="hidden mt-4 border p-4 bg-gray-100 nao-imprimir">
+    <div class="grid grid-cols-3 gap-3">
+      <input id="valorEntrada" type="number" step="0.01" placeholder="Valor da Entrada" class="border p-2">
+      <input id="formaEntrada" placeholder="Forma (Pix, Dinheiro...)" class="border p-2">
+      <input id="dataEntrada" type="date" class="border p-2">
+    </div>
+  </div>
+
+  <div id="descontoBox" class="hidden mt-4 border p-4 bg-yellow-50 nao-imprimir">
+    <div class="grid grid-cols-2 gap-3">
+      <input id="descontoVista" type="number" step="0.01" placeholder="Desconto À Vista" class="border p-2">
+      <input id="descontoPrazo" type="number" step="0.01" placeholder="Desconto À Prazo" class="border p-2">
+    </div>
+  </div>
+
 </section>
 
-<!-- OBSERVAÇÕES -->
-<section class="p-4 md:p-6">
+<!-- OBSERVAÇÕES RESTAURADAS -->
+<section class="p-6">
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">OBSERVAÇÕES</h2>
-  <p>• Validade do orçamento: 15 dias após o envio.</p>
-  <p>• Prazo de entrega: A combinar.</p>
-  <p>• Forma de pagamento: 50% na assinatura do contrato e 50% na entrega.</p>
+  <div class="mt-4 space-y-1">
+    <p>• Validade do orçamento: 15 dias após o envio.</p>
+    <p>• Prazo de entrega: A combinar.</p>
+    <p>• Forma de pagamento: 50% na assinatura do contrato e 50% na entrega.</p>
+  </div>
 </section>
 
-<!-- CONSIDERAÇÕES -->
-<section class="p-4 md:p-6">
+<!-- CONSIDERAÇÕES RESTAURADAS -->
+<section class="p-6">
   <h2 class="bg-cinza text-vinho font-bold px-4 py-2">CONSIDERAÇÕES FINAIS</h2>
-  <p class="mt-2">Prezado(a) Sr.(a),</p>
+  <p class="mt-4">Prezado(a) Sr.(a),</p>
   <p class="mt-2">
     A Pena Planejados agradece a oportunidade de apresentar este orçamento.
     Permanecemos à disposição para quaisquer esclarecimentos.
   </p>
-  <p class="mt-6 text-center font-bold text-vinho">
+
+  <p class="text-center text-vinho font-bold mt-6">
     Ebenézer até aqui nos ajudou o Senhor (1 Sm 7:12)
   </p>
 </section>
 
-<!-- IMPRIMIR -->
-<div class="nao-imprimir flex justify-center p-4 md:p-6">
+<!-- BOTÃO IMPRIMIR RESTAURADO -->
+<div class="flex justify-center p-6 nao-imprimir">
   <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded">
     Imprimir / Salvar PDF
   </button>
@@ -151,35 +168,71 @@ input:disabled {
 </div>
 
 <script>
+
 dataAtual.innerText = new Date().toLocaleDateString('pt-BR')
 
-function addLinha(){
+let numero = localStorage.getItem("orcamentoNumero") || 1
+numeroOrcamento.innerText = String(numero).padStart(4,"0")
+localStorage.setItem("orcamentoNumero", parseInt(numero)+1)
+
+function addItem(){
   const tr = document.createElement('tr')
   tr.innerHTML = `
-    <td class="border p-2"><input class="campo w-full border p-1"></td>
-    <td class="border p-2"><input type="number" value="1" class="campo w-full border p-1 qtd"></td>
-    <td class="border p-2"><input type="number" step="0.01" class="campo w-full border p-1 vista"></td>
-    <td class="border p-2"><input type="number" step="0.01" class="campo w-full border p-1 prazo"></td>
+    <td class="border p-2"><input class="w-full border p-1"></td>
+    <td class="border p-2"><input type="number" value="1" class="w-full border p-1 qtd"></td>
+    <td class="border p-2"><input type="number" step="0.01" class="w-full border p-1 vista"></td>
+    <td class="border p-2"><input type="number" step="0.01" class="w-full border p-1 prazo"></td>
     <td class="border p-2 text-center nao-imprimir">
-      <button onclick="this.closest('tr').remove();calc()" class="text-red-600">✖</button>
+      <button onclick="this.closest('tr').remove();atualizarTudo()" class="text-red-600">✖</button>
     </td>
   `
-  itens.appendChild(tr)
-  tr.querySelectorAll('input').forEach(i => i.oninput = calc)
+  linhas.appendChild(tr)
+  tr.querySelectorAll('input').forEach(i => i.oninput = atualizarTudo)
 }
 
-function calc(){
-  let v = 0, p = 0
-  document.querySelectorAll('#itens tr').forEach(tr => {
-    const q = +tr.querySelector('.qtd').value || 0
-    v += q * (+tr.querySelector('.vista').value || 0)
-    p += q * (+tr.querySelector('.prazo').value || 0)
+function mostrarEntrada(){
+  entradaBox.classList.remove('hidden')
+  valorEntrada.oninput = atualizarTudo
+}
+
+function mostrarDesconto(){
+  descontoBox.classList.remove('hidden')
+  descontoVista.oninput = atualizarTudo
+  descontoPrazo.oninput = atualizarTudo
+}
+
+function atualizarTudo(){
+
+  let subV = 0
+  let subP = 0
+
+  document.querySelectorAll('#linhas tr').forEach(tr=>{
+    const q = +tr.querySelector('.qtd')?.value || 0
+    subV += q * (+tr.querySelector('.vista')?.value || 0)
+    subP += q * (+tr.querySelector('.prazo')?.value || 0)
   })
-  totalVista.innerText = v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
-  totalPrazo.innerText = p.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+
+  const descV = +descontoVista?.value || 0
+  const descP = +descontoPrazo?.value || 0
+
+  const totalV = subV - descV
+  const totalP = subP - descP
+
+  const entrada = +valorEntrada?.value || 0
+  const saldo = totalP - entrada
+
+  subVista.innerText = subV.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  subPrazo.innerText = subP.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  descVistaValor.innerText = descV.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  descPrazoValor.innerText = descP.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  totalVista.innerText = totalV.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  totalPrazo.innerText = totalP.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  valorEntradaExibido.innerText = entrada.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  saldoRestante.innerText = saldo.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
 }
 
-addLinha()
+addItem()
+
 </script>
 
 </body>
